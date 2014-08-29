@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+#languages {
+  font: 10px sans-serif;
+}
+.axis path,
+.axis line {
+  fill: none;
+  stroke: black;
+  shape-rendering: crispEdges;
+}
+
+.line {
+  fill: none;
+  stroke-width: 1.5px;
+}
+
+.legend text {
+  padding-right: 5px;
+  font: 14px sans-serif;
+}
+
+</style>
+<svg id="languages"></svg>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+
+
+var margin = {top: 30, right: 0, bottom: 30, left: 50},
+    width = 840 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var x = d3.time.scale()
+    .range([0, width]);
+
+var y = d3.scale.linear()
+    .range([height, 0]);
+
+var color = d3.scale.category10();
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+
+var line = d3.svg.line()
+    .interpolate("cardinal")
+    .x(function(d) { return x(+d.year) })
+    .y(function(d) { return y(+d.count) });
+
+
+var svg = d3.select("#languages")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var allData;
+d3.csv("github_data.csv", function(d) {
+  return {
+    year: new Date(+d.year, 0, 1),
+    count: +d.count,
+    language: d.language
+  };
+}, function(data) {
+  allData = data;
+
+makeChart();
+});
+
+function makeChart() {
+
+  data = allData
+
+  data = d3.nest()
+  	.key(function(d) { return d.language; })
+  	.entries(data);
+
+  color.domain(d3.keys(data[0]).filter(function(key) { return key === "language"; }));
+
+  x.domain([
+  	d3.min(data, function(d) { return d3.min(d.values, function(d) { return d.year }); }),
+  	d3.max(data, function(d) { return d3.max(d.values, function(d) { return d.year }); })
+  	])
+
+  y.domain([0, d3.max(data, function(d) { return d3.max(d.values, function(d) { return d.count }); })]);
+
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("# Repos Created");
+
+  var language = svg.selectAll(".language")
+      .data(data, function(d) { return d.key; })
+    .enter().append("g")
+      .attr("class", "language");
+
+  language.append("path")
+      .attr("class", "line")
+      .attr("d", function(d) { return line(d.values); })
+      .style("stroke", function(d) { return color(d.key) })
+
+  var legend = svg.append("g")
+      .attr("class", "legend")
+      .attr("transform", "translate(10,-10)");
+
+  var sumOffsets = 0;
+  legend.selectAll(".label")
+      .data(data)
+    .enter().append("text")
+      .text(function(d) { return d.key; })
+      .attr("transform", function(d) { 
+        var offset = this.previousSibling ? this.previousSibling.getBBox().width : 0;
+        sumOffsets += offset + 10;
+        return "translate(" + sumOffsets + ",0)";
+      })
+      .attr("fill", function(d) { return color(d.key); });
+}
+
+</script>
