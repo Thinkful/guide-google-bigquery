@@ -1,21 +1,21 @@
-#Google BigQuery
+# Google BigQuery
 
 
-##What is it?
+## What is it?
 
 Google BigQuery is a tool that allows you to execute SQL-like queries on large amounts of data at outstanding speeds. You can easily load your own datasets or, for sandbox play, you can use one of the datasets they provide. Results can be stored on Google Cloud or downloaded as a CSV.
 
 
-##Is it free?
+## Is it free?
 
 Almost! It's free to upload datasets up to 10MB; and you can do as many queries as you want. Other operations — such as saving a table to the cloud — requires you to set up billing. Setting up billing can be a bit of a hassel but it doesn't cost much ($0.026 per GB, per month) and, for small queries, you won't need it.
 
 
-##BigQuery Browser Tool
+## BigQuery Browser Tool
 
 In this tutorial we'll be doing a code-along using the [BigQuery Browser Tool](https://developers.google.com/bigquery/bigquery-browser-tool), which allows you to load data, run queries, and download the results all in your [web browser](https://bigquery.cloud.google.com/). If you're interested in using BigQuery without this tool, check out Google's page on [synchronous and asynchronous queries](https://developers.google.com/bigquery/querying-data). 
 
-###Set Up
+### Set Up
 
 In order to follow along you'll need to start a sample project on Google BigQuery by going to the [Google API Console](https://console.developers.google.com/project). All you need to do is sign in to your Google Account (or create one), and select `Create Project`.
 
@@ -37,7 +37,7 @@ To access the Browser Tool, click on your newly created project, and, on your Pr
 ![try bigquery](http://i.imgur.com/4c5xLlZ.png)
 
 
-###Getting Data
+### Getting Data
 
 Before we can run any queries, we need some data! There are a couple of options here: 
 
@@ -48,7 +48,7 @@ To make sure we're all on the same wavelength, let's use their sample data. You 
 
 ![view public bigquery data](http://i.imgur.com/bDy6uD4.png)
 
-###Querying Data
+### Querying Data
 
 _BigQuery uses a slight variant of SQL expressions. For a refresher, check out [this SQL query guide](http://technet.microsoft.com/en-us/library/bb264565)._
 
@@ -60,7 +60,7 @@ _Selecting the data_
 
 This dataset contains the __words__ in Shakespeare's works, the __word_count__ for each word, in which __corpus__ the word appears, and the __date__ the corpus was written. 
 
-####SELECT and FROM
+#### SELECT and FROM
 
 Select is the most basic clause and specifies _what_ it is that you want to be returned by the query.From specifies what dataset we are using.
 
@@ -77,7 +77,7 @@ _Note: SQL is not case sensitive, but it is standard to write keywords such as S
 
 Ah! That query returned a corpus each time it was listed in the dataset - over 100,000 rows of data! It would be much better if we could __group by__ name, right?
 
-####GROUP BY
+#### GROUP BY
 
 The GROUP BY clause tells BigQuery to group the data by some parameter. In our case, we want to group by corpus. Let's try:
 
@@ -93,7 +93,7 @@ Now we have a list of all of Shakespear's works, each listed only once.
 
 _Aside: we can see that the query returned 42 rows, but isn't is generally accepted that he only had 37 works? Even if you include his lost plays, it's still only 40. We still have 2 rogue rows! It's because this list includes "various" and "sonnets" as corpus names, which accounts for the last two rows and solves our mystery._
 
-####SUM and COUNT
+#### SUM and COUNT
 
 Let's switch gears. Say we want to count something — say, the number of words in Shakespeare's works. Luckily, we have `word_count` which represents how many word that particular word appeared in a particular corpus. We can just sum all of these values, and we are left with the total number of words that he wrote. 
 
@@ -114,7 +114,7 @@ GROUP BY word
 
 Here we use the `COUNT` function to count how many words they are, and group them by word so as not to show duplicates. 32,786 unique words! But what is the count value actually showing? The "count" column represents in how many of the 42 works that word appears. So, the word "brave" is used in 35 of his 42 works, while "That" is used in all 42 and "left'st" is only used in 1. 
 
-####ORDER BY
+#### ORDER BY
 
 Let's check out the most popular words are and how many times they were used: 
 
@@ -125,12 +125,12 @@ GROUP BY word
 ORDER BY count DESC
 ```
 
-We use `ORDER BY` to do just that - order the data by some parameter, in our case, the sum of word counts. `DESC` orders the the counts in descending order, and the opposite is `ASC`, for ascending.  
+We use `ORDER BY` to do just that - order the data by some parameter, in our case, the sum of word counts. `DESC` orders the counts in descending order, and the opposite is `ASC`, for ascending.  
 Surprise surprise, the words "the", "I", and "and" are the big winners. 
 
 ![](http://i.imgur.com/JPOmpLP.png)
 
-####WHERE
+#### WHERE
 
 Hmm, well those top words aren't that interesting. I wonder how many times the word "swagger" or "bedazzled" come up? We can use the `WHERE` clause to filter data to meet our speficications.
 
@@ -147,9 +147,9 @@ _Note: You can also use "AND" instead of "OR" — this would show 0 results sin
 
 Looks like Shakespeare was pretty hip for his time. Play around with some other words - try your name.
 
-##Exploring GitHub Data
+## Exploring GitHub Data
 
-###GitHub Archive Data
+### GitHub Archive Data
 
 Have you heard of [Google's Ngram Viewer](https://books.google.com/ngrams/)? Basically, "it displays a graph showing how those phrases have occurred in a corpus of books (e.g., "British English", "English Fiction", "French") over the selected years." 
 
@@ -157,7 +157,7 @@ Why don't we try and do the same with programming languages over all repositorie
 
 ![](http://i.imgur.com/xURukGw.png)
 
-####Gather GitHub Data
+#### Gather GitHub Data
 
 For this graph, we're going to need access to the GitHub Archive data, which they have conveniently provided for us through the BigQuery browser tool. To get the data, press the little arrow next to your project name, click "Switch to project > Display project..." and type in "githubarchive".
 
@@ -171,7 +171,7 @@ A new dataset should appear in the sidebar with three tables. We'll be using the
 
 ![](http://i.imgur.com/BmToZJh.png)
 
-####What to Query
+#### What to Query
 
 For this graph, we're going compare any number of programming languages against each other based on how many repositories use each given language.
 
@@ -196,13 +196,13 @@ WOAH! What in the world is going on up there? Let me break it down for you. When
 
 The `WHERE` clause has two parts. The first filters our results to the two (or however many you want!) languages that we want to compare. The second uses `PARSE_UTC_USEC` to put the `repository_created_at` value into a date formate. This allows us to change our timescale. In this example, we are only looking at repositories created in 2012 or later.
 
-####Download the Data
+#### Download the Data
 
 Now that you have the data, simply press the "Download CSV" button. If you open it with Excel, it should look like a nicely organized 3 column chart.
 
 ![](http://i.imgur.com/SlVfcAV.png)
 
-###Graphing the Ngram
+### Graphing the Ngram
 
 Now's the fun part! We've included a d3 template that will turn your data into a pretty graph. The only thing you need to be sure of is that you used the same column names as the example above and that the CSV file is saved in the same folder as the template.
 
@@ -213,7 +213,7 @@ Now's the fun part! We've included a d3 template that will turn your data into a
 
 Try graphing lots of different combinations and let us know what you find :)
 
-##Uploading your own data
+## Uploading your own data
 
 Uploading your own data to the BigQuery is free, _but_ in order to be able to use this feature, Google requires that you enable billing.
 
